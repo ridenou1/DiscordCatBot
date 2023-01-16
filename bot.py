@@ -9,8 +9,11 @@ load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
-client = discord.Client(intents=intents)
+client = discord.Client(command_prefix='!', intents=intents)
+
+default_channel = "general"
 
 # Bot sign-on event
 @client.event
@@ -42,6 +45,19 @@ def meow_selector():
         return m6
     else:
         return "meow meow meow"
+
+# Welcomes a user upon joining
+@client.event
+async def on_member_join(member):
+    print(f"{member} has joined the server.")
+    # channel = member.
+    for channel in member.guild.channels:
+        if str(channel) == default_channel:
+            await channel.send(f"{member.mention} Meow meow meow meow meow! <3")
+
+# @client.event
+# async def catname(name):
+#     await message.guild.get_member(self.user.id).edit(nick=name)
 
 # Returns meow (or other related messages) for various key words
 @client.event
