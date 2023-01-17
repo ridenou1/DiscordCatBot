@@ -10,10 +10,48 @@ load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.messages = True
+intents.presences = True
 
-client = discord.Client(command_prefix='!', intents=intents)
+from discord.ext import commands
 
-default_channel = "general"
+# client = discord.Client(command_prefix='!', intents=intents)
+
+client = commands.Bot(command_prefix='.', intents=intents)
+
+client.default_channel = "general"
+client.channel_found = 0
+
+# Testing by pinging the bot
+@commands.command()
+async def ping(ctx):
+    print("ponging")
+    await ctx.send("Pong!")
+client.add_command(ping)
+
+@commands.command()
+async def defChannelSet(ctx, arg):
+    arg.strip()
+    for channel in ctx.guild.channels:
+        print(str(channel))
+        if str(arg) == channel:
+            client.default_channel = str(arg)
+            client.channel_found = 1
+
+    if client.channel_found == 0:
+        print("Channel set failure, " + str(arg) + " was not found in guild.")
+        await ctx.send("*[CONFIG MODE]* Channel set failure, " + str(arg) + " was not found in guild.")
+    else:
+        print("Default channel is now " + str(arg))
+        await ctx.send("*[CONFIG MODE]* Default channel is now " + str(arg))
+        client.channel_found = 0
+
+    print("client.default_channel = " + str(client.default_channel))
+
+
+client.add_command(defChannelSet)
+
+
 
 # Bot sign-on event
 @client.event
@@ -21,7 +59,7 @@ async def on_ready():
     print(f'We have logged in as {client.user}')
 
 # Determines which generic meow the bot will use
-def meow_selector():
+def mw_selector():
     m1 = "meow"
     m2 = "mow"
     m3 = "mew"
@@ -52,7 +90,7 @@ async def on_member_join(member):
     print(f"{member} has joined the server.")
     # channel = member.
     for channel in member.guild.channels:
-        if str(channel) == default_channel:
+        if str(channel) == client.default_channel:
             await channel.send(f"{member.mention} Meow meow meow meow meow! <3")
 
 # @client.event
@@ -66,13 +104,13 @@ async def on_message(message):
         return
 
     if 'meow' in message.content.lower():
-        await message.channel.send(meow_selector())
+        await message.channel.send(mw_selector())
 
     if 'mew' in message.content.lower():
-        await message.channel.send(meow_selector())
+        await message.channel.send(mw_selector())
 
     if 'mow' in message.content.lower():
-        await message.channel.send(meow_selector())
+        await message.channel.send(mw_selector())
 
     if 'purr' in message.content.lower():
         await message.channel.send("*purrs*")
@@ -102,7 +140,7 @@ async def on_message(message):
         await message.channel.send("*scampers toward allergic individual*")
     
     if 'cat' in message.content.lower():
-        await message.channel.send(meow_selector())
+        await message.channel.send(mw_selector())
 
     if 'dog' in message.content.lower():
         water_rand = random.randint(1,25)
@@ -168,5 +206,8 @@ async def on_message(message):
 
     if 'pet' in message.content.lower():
         await message.channel.send("*purrs*")
+
+    # Processes other commands as well
+    await client.process_commands(message)
 
 client.run(os.getenv('TOKEN'))
