@@ -2,6 +2,7 @@ import discord
 import os
 import random
 import time
+import string
 
 # Import the tokens from .env
 from dotenv import load_dotenv
@@ -21,6 +22,7 @@ client = commands.Bot(command_prefix='.', intents=intents)
 
 client.default_channel = "general"
 client.channel_found = 0
+client.cat_name = "cat"
 
 # Testing by pinging the bot
 @commands.command()
@@ -33,8 +35,10 @@ client.add_command(ping)
 async def defChannelSet(ctx, arg):
     arg.strip()
     for channel in ctx.guild.channels:
-        print(str(channel))
-        if str(arg) == channel:
+        channel_name = str(channel)
+        channel_name.strip()
+        print(channel_name)
+        if str(arg) == channel_name:
             client.default_channel = str(arg)
             client.channel_found = 1
 
@@ -48,9 +52,25 @@ async def defChannelSet(ctx, arg):
 
     print("client.default_channel = " + str(client.default_channel))
 
-
 client.add_command(defChannelSet)
 
+@commands.command()
+async def setName(ctx, *arg):
+    newName = ""
+    for i in arg:
+        newName = newName + " "+  i
+    client.cat_name = newName[1:]
+    await ctx.send("*[CONFIG MODE]* My name is now " + str(client.cat_name) + ".")
+    # await client.user.edit(nick=client.cat_name)
+    await ctx.guild.me.edit(nick=client.cat_name)
+
+client.add_command(setName)
+
+@commands.command()
+async def printName(ctx):
+    await ctx.send("*[CONFIG MODE]* My name is " + str(client.cat_name) + ".")
+
+client.add_command(printName)
 
 
 # Bot sign-on event
@@ -102,6 +122,10 @@ async def on_member_join(member):
 async def on_message(message):
     if message.author == client.user:
         return
+
+    name = client.cat_name.lower()
+    if name in message.content.lower():
+        await message.channel.send(mw_selector())
 
     if 'meow' in message.content.lower():
         await message.channel.send(mw_selector())
@@ -164,6 +188,28 @@ async def on_message(message):
         else:
             await message.channel.send("*HISSSSSSSS*") 
 
+    if 'woof' in message.content.lower():
+        water_rand = random.randint(1,25)
+        if water_rand == 24:
+            await message.channel.send("woof")
+            time.sleep(1)
+            await message.channel.send("*coughing fit*")    
+            time.sleep(1)
+            await message.channel.send("MEOW!")
+        else:
+            await message.channel.send("*HISSSSSSSS*") 
+
+    if 'bark' in message.content.lower():
+        water_rand = random.randint(1,25)
+        if water_rand == 24:
+            await message.channel.send("woof")
+            time.sleep(1)
+            await message.channel.send("*coughing fit*")    
+            time.sleep(1)
+            await message.channel.send("MEOW!")
+        else:
+            await message.channel.send("*HISSSSSSSS*") 
+
     if 'k9' in message.content.lower():
         await message.channel.send("*HISSSSSSSS*") 
 
@@ -205,6 +251,12 @@ async def on_message(message):
         await message.channel.send("*purrs*")
 
     if 'pet' in message.content.lower():
+        await message.channel.send("*purrs*")
+
+    if 'good bot' in message.content.lower():
+        await message.channel.send("*purrs*")
+
+    if 'good cat' in message.content.lower():
         await message.channel.send("*purrs*")
 
     # Processes other commands as well
